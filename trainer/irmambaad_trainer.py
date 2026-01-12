@@ -71,8 +71,6 @@ class MAMBAADTrainer(BaseTrainer):
         test_length = self.cfg.data.test_size
         test_loader = iter(self.test_loader)
         while batch_idx < test_length:
-            # if batch_idx == 10:
-            # 	break
             t1 = get_timepc()
             batch_idx += 1
             test_data = next(test_loader)
@@ -81,7 +79,6 @@ class MAMBAADTrainer(BaseTrainer):
             loss_mse = self.loss_terms['pixel'](self.feats_t, self.feats_s)
             update_log_term(self.log_terms.get('pixel'), reduce_tensor(loss_mse, self.world_size).clone().detach().item(),
                             1, self.master)
-            # get anomaly maps
             anomaly_map, _ = self.evaluator.cal_anomaly_map(self.feats_t, self.feats_s,
                                                             [self.imgs.shape[2], self.imgs.shape[3]], uni_am=False,
                                                             amap_mode='add', gaussian_sigma=4)
@@ -93,12 +90,10 @@ class MAMBAADTrainer(BaseTrainer):
             t2 = get_timepc()
             update_log_term(self.log_terms.get('batch_t'), t2 - t1, 1, self.master)
             print(f'\r{batch_idx}/{test_length}', end='') if self.master else None
-            # ---------- log ----------
             if self.master:
                 if batch_idx % self.cfg.logging.test_log_per == 0 or batch_idx == test_length:
                     msg = able(self.progress.get_msg(batch_idx, test_length, 0, 0, prefix=f'Test'), self.master, None)
                     log_msg(self.logger, msg)
-        # merge results
         if self.cfg.dist:
             results = dict(imgs_masks=imgs_masks, anomaly_maps=anomaly_maps, cls_names=cls_names, anomalys=anomalys)
             torch.save(results, f'{self.tmp_dir}/{self.rank}.pth', _use_new_zipfile_serialization=False)
@@ -132,7 +127,6 @@ class MAMBAADTrainer(BaseTrainer):
                 msg['Name'].append(cls_name)
                 avg_act = True if len(self.cls_names) > 1 and idx == len(self.cls_names) - 1 else False
                 msg['Name'].append('Avg') if avg_act else None
-                # msg += f'\n{cls_name:<10}'
                 for metric in self.metrics:
                     metric_result = metric_results[metric] * 100
                     self.metric_recorder[f'{metric}_{cls_name}'].append(metric_result)
