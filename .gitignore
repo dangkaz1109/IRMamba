@@ -1,5 +1,5 @@
 # Loại bỏ toàn bộ dữ liệu trong thư mục button_cell
-IRMamba/data/button_cell/**/*
+/data/button_cell/**/*
 
 # Loại bỏ các file trọng số mô hình (checkpoint)
 *.pth
