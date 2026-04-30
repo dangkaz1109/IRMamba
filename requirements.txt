@@ -1,0 +1,22 @@
+# PyTorch ecosystem (CUDA 12.1 specifically requested in the notebook)
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.0
+torchvision==0.20.0
+torchaudio==2.5.0
+
+# State Space Models (Mamba)
+mamba-ssm==2.3.0
+
+# Core Data Science & Image Processing
+Pillow>=5.3.0
+numpy>=1.17
+scipy
+matplotlib
+
+# Utilities
+tqdm>=4.27
+
+# Implicit dependencies for Mamba/PyTorch found in your logs
+triton==3.1.0
+einops
+transformers
