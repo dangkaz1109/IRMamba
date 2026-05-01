@@ -1,6 +1,6 @@
 I. Run Options:
 1) Using pretrained model
-Pretrained Model Download: https://drive.google.com/file/d/1hpt-t7WOJ8QwU-1_zrRG2zgTIL7dLJFG/view?usp=sharing  
+Pretrained Model   Download: https://drive.google.com/file/d/1hpt-t7WOJ8QwU-1_zrRG2zgTIL7dLJFG/view?usp=sharing  
 
 Dino Pretrained Model Download: https://drive.google.com/file/d/1aBPftvO5Metttw0XaHrcriVA9UTsQ6qn/view?usp=sharing
 
