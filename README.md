@@ -1,12 +1,24 @@
-I. Run Options:
-1) Using pretrained model
-Pretrained Model   Download: https://drive.google.com/file/d/1hpt-t7WOJ8QwU-1_zrRG2zgTIL7dLJFG/view?usp=sharing  
 
-Dino Pretrained Model Download: https://drive.google.com/file/d/1aBPftvO5Metttw0XaHrcriVA9UTsQ6qn/view?usp=sharing
 
-2) Training from scratch
-Training from scratch: 'python train_dino.py' then 'python train_decoder.py'
 
-II. Evaluate/Testing
-run 'python evaulate.py'
+### I. Run Options
 
+#### 1. Using Pretrained Models
+*   **Main Pretrained Model:** [Download here](https://drive.google.com/file/d/1hpt-t7WOJ8QwU-1_zrRG2zgTIL7dLJFG/view?usp=sharing)
+*   **DINO Pretrained Model:** [Download here](https://drive.google.com/file/d/1aBPftvO5Metttw0XaHrcriVA9UTsQ6qn/view?usp=sharing)
+
+#### 2. Training From Scratch
+1.  **Train the DINO backbone:**
+    ```bash
+    python train_dino.py
+    ```
+2.  **Train the Decoder:**
+    ```bash
+    python train_decoder.py
+    ```
+
+---
+
+## 📊 Evaluation & Testing
+```bash
+python evaluate.py
