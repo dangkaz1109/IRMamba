@@ -1,10 +1,26 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from resnet_encoder import ResNet34Encoder
-from mwfm import ModifiedMWFM
+from models.resnet_encoder import ResNet34Encoder
+from models.mwfm import ModifiedMWFM
 
+class CombinedEncoder(nn.Module):
+    def __init__(self, d_model=64):
+        super().__init__()
+        self.resnet = ResNet34Encoder(pretrained=False)
+        self.mwfm = ModifiedMWFM(in_channels=1, embed_dim=d_model)
+        self.out_dim = 256 + d_model
 
+    def forward(self, x):
+        _, _, f3 = self.resnet(x)
+        f3_gap = F.adaptive_avg_pool2d(f3, (1, 1)).flatten(1) # Shape: (B, 256)
+
+        # Extract MWFM features and apply GAP
+        E_in, _, _, _ = self.mwfm(x)
+        E_in_gap = F.adaptive_avg_pool2d(E_in, (1, 1)).flatten(1) # Shape: (B, 64)
+
+        # Concatenate into a single embedding
+        return torch.cat([f3_gap, E_in_gap], dim=1) # Shape: (B, 320)
 
 class DINOHead(nn.Module):
     def __init__(self, in_dim, out_dim=4096, hidden_dim=2048, bottleneck_dim=256):

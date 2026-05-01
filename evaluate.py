@@ -4,6 +4,73 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 from models.integrated_model import IntegratedAnomalyDetector
 
+import torch
+import numpy as np
+from sklearn.metrics import roc_auc_score
+from scipy.ndimage import gaussian_filter
+from tqdm import tqdm
+
+def evaluate_anomaly_metrics(model, test_loader, device='cuda'):
+    print("Computing AUROC Metrics")
+    model.eval()
+    model.to(device)
+
+    all_image_labels = []
+    all_image_scores = []
+
+    all_pixel_masks = []
+    all_pixel_scores = []
+
+    loop = tqdm(test_loader, desc="Evaluating", leave=False)
+
+    with torch.no_grad():
+        for images, labels, masks in loop:
+            images = images.to(device)
+
+            if images.shape[1] == 3:
+                images = images.mean(dim=1, keepdim=True)
+
+            with torch.amp.autocast('cuda'):
+                raw_anomaly_map = model(images)
+
+            anomaly_scores = torch.pow(raw_anomaly_map, 2).float().cpu().numpy()
+            masks = masks.cpu().numpy()
+            labels = labels.numpy()
+
+            for i in range(images.size(0)):
+                score_map = anomaly_scores[i].squeeze()
+                gt_mask = masks[i].squeeze()
+
+                score_map = gaussian_filter(score_map, sigma=4)
+
+                img_score = np.max(score_map)
+
+                all_image_labels.append(labels[i])
+                all_image_scores.append(img_score)
+
+                gt_mask = (gt_mask > 0).astype(int)
+
+                all_pixel_masks.extend(gt_mask.flatten())
+                all_pixel_scores.extend(score_map.flatten())
+
+    print("\nCalculating AUROC scores...")
+
+    try:
+        image_auroc = roc_auc_score(all_image_labels, all_image_scores)
+        pixel_auroc = roc_auc_score(all_pixel_masks, all_pixel_scores)
+
+        print("========================================")
+        print(f"Image-level AUROC: {image_auroc:.4f}")
+        print(f"Pixel-level AUROC: {pixel_auroc:.4f}")
+        print("========================================")
+
+        return image_auroc, pixel_auroc
+
+    except ValueError as e:
+        print(f"\nError calculating AUROC: {e}")
+        print("This usually happens if your test set only contains 'good' images and no defects.")
+        return None, None
+
 
 def imshow(img, title=None):
     img = img.numpy().transpose((1, 2, 0))
@@ -64,13 +131,13 @@ def generate_and_visualize_anomaly_maps(model, test_loader, device='cuda', num_s
             samples_shown += 1
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig('eva_result.png', bbox_inches='tight')
+    print("Saved as eva_result.png!")
+    plt.close()
 
-# Đoạn code ở file evaluate.py
 import torch
 from models.integrated_model import IntegratedAnomalyDetector
 from dataset import build_ad_dataloaders
-# ... (import các hàm vẽ hình)
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -79,10 +146,14 @@ if __name__ == "__main__":
     
     model.load_state_dict(torch.load(weight_path, map_location=device))
     _, test_loader = build_ad_dataloaders(data_dir="data/button_cell")
-
+    img_auc, pix_auc = evaluate_anomaly_metrics(
+        model=model,
+        test_loader=test_loader,
+        device=device
+    )
     generate_and_visualize_anomaly_maps(
         model=model,
         test_loader=test_loader,
         device=device,
-        num_samples=3
+        num_samples=10
     )

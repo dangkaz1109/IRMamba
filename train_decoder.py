@@ -124,11 +124,10 @@ def train_anomaly_decoder(model, train_loader, optimizer, num_epochs=120, device
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     anomaly_detector = IntegratedAnomalyDetector(d_model=64)
-    data_load = build_ad_dataloaders("/data/button_cell")
+    data_load = build_ad_dataloaders("data/button_cell")
     train_loader, test_loader = data_load
     
-    # 2. Execute Task 4.1 (Provide your DINO checkpoint path here)
-    pretrained_path = '/content/drive/MyDrive/DINO_MODEL/dino_full_model_epoch30.pth'
+    pretrained_path = 'data/dino_pretrain/dino_full_model_epoch30.pth'
     anomaly_detector = load_and_freeze_model(
         model=anomaly_detector,
         pretrained_weights_path=pretrained_path, # Replace with pretrained_path when ready
@@ -146,7 +145,7 @@ if __name__ == "__main__":
         device=device
     )
     
-    save_path = "data/anomaly_decoder_final.pth" # Gợi ý thư mục lưu
+    save_path = "data/anomaly_decoder_final.pth" 
     torch.save(anomaly_detector.state_dict(), save_path)
     print(f"Đã lưu model tại {save_path}")
 

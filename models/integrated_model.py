@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from resnet_encoder import ResNet34Encoder
-from mwfm import ModifiedMWFM
-from hfpn_bottleneck import HalfFPNBottleneck
-from mamba_stage import HPG_Mamba_Stage
+from models.resnet_encoder import ResNet34Encoder
+from models.mwfm import ModifiedMWFM
+from models.hfpn_bottleneck import HalfFPNBottleneck
+from models.mamba_stage import HPG_Mamba_Stage
 
 class IntegratedAnomalyDetector(nn.Module):
     def __init__(self, d_model=64):
