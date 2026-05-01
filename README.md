@@ -2,7 +2,7 @@
 
 
 ### I. Run Options
-
+pip install -r requirements.txt
 #### 1. Using Pretrained Models
 *   **Main Pretrained Model:** [Download here](https://drive.google.com/file/d/1hpt-t7WOJ8QwU-1_zrRG2zgTIL7dLJFG/view?usp=sharing)
 *  Then place to the 'data' folder
